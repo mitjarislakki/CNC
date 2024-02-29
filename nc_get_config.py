@@ -15,26 +15,27 @@ def get_switch_config(ip_address: str, debug: bool = False):
     # with open("lldp_config.xml", "w") as f:
     #     f.write(lldp_xmlDom.toprettyxml(indent="  "))
 
-    # FULL CONFIG
-    # full_config = m.get_config("running")
-    # xmlDom = xml.dom.minidom.parseString(str(full_config))
-    # with open("full_config.xml", "w") as f:
-    #     f.write(xmlDom.toprettyxml(indent="  "))
-
-    # BRIDGE
-    # bridge_config = m.get_config("running", BRIDGE_FILTER)
-    # xmlDom = xml.dom.minidom.parseString(str(bridge_config))
-    # with open("bridge_info.xml", "w") as f:
-    #     f.write(xmlDom.toprettyxml(indent="  "))
-
     if debug:
+        # FULL CONFIG
+        # full_config = m.get_config("running")
+        # xmlDom = xml.dom.minidom.parseString(str(full_config))
+        # with open("full_config.xml", "w") as f:
+        #     f.write(xmlDom.toprettyxml(indent="  "))
+
+        # BRIDGE
+        # bridge_config = m.get_config("running", BRIDGE_FILTER)
+        # xmlDom = xml.dom.minidom.parseString(str(bridge_config))
+        # with open("bridge_info.xml", "w") as f:
+        #     f.write(xmlDom.toprettyxml(indent="  "))
+
         # INTERFACES
-        filter = get_interface_filter("sw0p4")
+        filter = get_interface_filter("sw0p5")
         qbv_config = str(m.get_config("running", filter))
         qbv_xmlDom = xml.dom.minidom.parseString(qbv_config)
+        print(qbv_xmlDom.toprettyxml(indent="  "))
 
-        with open("interface_info.xml", "w") as f:
-            f.write(qbv_xmlDom.toprettyxml(indent="  "))
+        # with open("interface_info.xml", "w") as f:
+        #     f.write(qbv_xmlDom.toprettyxml(indent="  "))
 
     return config
 

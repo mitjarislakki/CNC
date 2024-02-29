@@ -706,17 +706,6 @@ def get_interface_filter(interface: str):
           """
 
 
-INTERFACE_FILTER = """
-<filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-  <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-    <interface>
-      <name>sw0p2</name>
-    </interface>
-  </interfaces>
-</filter>
-"""
-
-
 OPERATION = """
 <config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">

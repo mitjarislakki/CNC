@@ -1,7 +1,8 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict
 
-HIGH_PRIORITY_INGRESS_PCP = 6
+HIGH_PRIORITY_INGRESS_PCP = 1
+# HIGH_PRIORITY_INGRESS_PCP = 6
 
 PORT_PARAM = """
         <priority-regeneration>
@@ -38,12 +39,12 @@ PORT_PARAM = """
 """
 
 
-class ControlListEntry(BaseModel):
+class GCLEntry(BaseModel):
     bitmask: int
     value: int
 
 
-def create_control_list_entries(control_list: List[ControlListEntry]):
+def create_gcl_entries(control_list: List[GCLEntry]):
     entries = ""
     for index, entry in enumerate(control_list):
         entries += f"""
@@ -51,8 +52,8 @@ def create_control_list_entries(control_list: List[ControlListEntry]):
             <index>{index}</index>
             <operation-name>set-gate-states</operation-name>
             <sgs-params>
-            <gate-states-value>{entry.bitmask}</gate-states-value>
-            <time-interval-value>{entry.value}</time-interval-value>
+              <gate-states-value>{entry.bitmask}</gate-states-value>
+              <time-interval-value>{entry.value}</time-interval-value>
             </sgs-params>
         </admin-control-list>
     """
@@ -60,15 +61,13 @@ def create_control_list_entries(control_list: List[ControlListEntry]):
     return entries
 
 
-def create_qbv_gate_entry(control_list: List[ControlListEntry], cycle_time, off_set=0):
+def create_qbv_gate_params(control_list: List[GCLEntry], cycle_time, off_set=0):
     qbv_gate = f"""
     <gate-parameters xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
         <gate-enabled>true</gate-enabled>
         <admin-gate-states>255</admin-gate-states>
         <admin-control-list-length>{len(control_list)}</admin-control-list-length>
-
-        {create_control_list_entries(control_list)}
-
+        {create_gcl_entries(control_list)}
         <admin-cycle-time>
           <numerator>1</numerator>
           <denominator>{cycle_time}</denominator>
@@ -85,15 +84,18 @@ def create_qbv_gate_entry(control_list: List[ControlListEntry], cycle_time, off_
     return qbv_gate
 
 
-def _get_ctrl_list(bm1, v1, bm2, v2) -> List[ControlListEntry]:
-    control_list = [
-        ControlListEntry(bitmask=bm1, value=v1),
-        ControlListEntry(bitmask=bm2, value=v2),
-    ]
+def get_gcl(**bm_and_val) -> List[GCLEntry]:
+    control_list = []
+    bitmasks = bm_and_val.get("bm", [])
+    values = bm_and_val.get("val", [])
+    for i in range(len(bitmasks)):
+        control_list.append(
+            GCLEntry(bitmask=bitmasks[i], value=values[i]),
+        )
     return control_list
 
 
-def get_qbv_config(cycle_time=800, off_set=0):
+def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
     QBV_CONFIG = f"""
   <config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
     <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -140,13 +142,13 @@ def get_qbv_config(cycle_time=800, off_set=0):
           <traffic-class>7</traffic-class>
           <queue-max-sdu>1504</queue-max-sdu>
         </max-sdu-table>
+        {create_qbv_gate_params([], cycle_time, off_set)}
         <bridge-port xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <component-name>br0</component-name>
           <pvid>1</pvid>
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_entry(_get_ctrl_list(255, 200000, 64, 600000), cycle_time)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
           <auto-negotiation>
             <enable>true</enable>
@@ -194,7 +196,7 @@ def get_qbv_config(cycle_time=800, off_set=0):
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_entry(_get_ctrl_list(255, 200000, 64, 600000), 800)}
+        {create_qbv_gate_params(control_list.get('pair1_outport', []), cycle_time, off_set)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
           <auto-negotiation>
             <enable>true</enable>
@@ -242,7 +244,7 @@ def get_qbv_config(cycle_time=800, off_set=0):
           <default-priority>{HIGH_PRIORITY_INGRESS_PCP}</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_entry([], 800)}
+        {create_qbv_gate_params([], cycle_time, off_set)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
         <auto-negotiation>
           <enable>true</enable>
@@ -290,7 +292,7 @@ def get_qbv_config(cycle_time=800, off_set=0):
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_entry(_get_ctrl_list(255, 200000, 64, 600000), 800)}
+        {create_qbv_gate_params(control_list.get('pair2_outport', []), cycle_time, off_set)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
         <auto-negotiation>
           <enable>true</enable>

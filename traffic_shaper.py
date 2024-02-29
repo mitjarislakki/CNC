@@ -36,7 +36,7 @@ async def shape_traffic(nw_map):
             for switch in switches:
                 # 3. compute schedule for this switch
                 cycle_time, offset = calculate_schedule(switch)
-                qbv_config = get_qbv_config(cycle_time, offset)
+                qbv_config = get_qbv_config(cycle_time=cycle_time, off_set=offset)
 
                 # 4. send schedule to switches
                 edit_switch_schedule(switch.ip_address, qbv_config)
