@@ -1,12 +1,14 @@
-from scapy.packet import Packet
 import socket
-from scapy.contrib.lldp import LLDPDUManagementAddress, LLDPDUSystemDescription
-from network_map import Switch, NetworkMap, SwitchNode
-from nc_get_config import get_switch_config
-from process_switch_config import handle_config
-from loguru import logger
 
-LINK_DELAY = 0
+from loguru import logger
+from scapy.contrib.lldp import LLDPDUManagementAddress, LLDPDUSystemDescription
+from scapy.packet import Packet
+
+from nc_get_config import get_switch_config
+from network_map import NetworkMap, Switch, SwitchNode
+from process_switch_config import handle_config
+
+LINK_DELAY = 420000
 
 
 class FrameHandler:
@@ -15,9 +17,12 @@ class FrameHandler:
 
     def update_nw_map(self, ip: str, switch_name: str):
         new_switch = Switch(name=switch_name, ip_address=ip)
-        new_switch_node = SwitchNode(switch=new_switch, link_delay_to_prev=LINK_DELAY)
-
         self.nw_map.add_switch(new_switch)
+
+        ### BETA
+        new_switch_node = SwitchNode(switch=new_switch, link_delay_to_prev=LINK_DELAY)
+        self.nw_map.add_switch_node(new_switch_node)
+        ###
 
         lldp_config = get_switch_config(ip)
 
@@ -42,7 +47,3 @@ class FrameHandler:
         logger.success(f"{switch_ip=}; {switch_name=}")
         self.update_nw_map(switch_ip, switch_name)
         print(f"{self.nw_map}")
-
-        # if switch_ip not in self.global_cache:
-        #     self.update_nw_map(switch_ip, switch_name)
-        #     self.start_switch_timer(switch_ip)

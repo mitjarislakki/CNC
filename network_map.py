@@ -1,12 +1,15 @@
-from pydantic import BaseModel, model_validator
 from typing import List, Optional
+
 from loguru import logger
+from pydantic import BaseModel, model_validator
+
+RESIDENCE_TIME = 800  # in nanosec
 
 
 class Switch(BaseModel):
     name: str
     ip_address: str
-    residence_time: float = 0.8
+    residence_time: int = RESIDENCE_TIME
     connections: List["Switch"] = []
 
 
@@ -18,7 +21,7 @@ class Port(BaseModel):
 
 class SwitchNode(BaseModel):
     switch: Switch
-    link_delay_to_prev: float
+    link_delay_to_prev: int
     previous: Optional["SwitchNode"] = None
 
     @property
@@ -27,11 +30,11 @@ class SwitchNode(BaseModel):
 
 
 def calculate_offset(node: SwitchNode):
-    time = node.latency_to_prev
+    ingress_offset = node.latency_to_prev
     if node.previous:
         return calculate_offset(node.previous)
     else:
-        return time
+        return ingress_offset
 
 
 class NetworkMap(BaseModel):
@@ -39,6 +42,8 @@ class NetworkMap(BaseModel):
     switches: List[Switch] = []
     ports: List[Port] = []
     map_has_changed: bool = False
+
+    # VALIDATOR AND HELPER
 
     @model_validator(mode="after")
     def check_switch(self) -> "NetworkMap":
@@ -58,6 +63,43 @@ class NetworkMap(BaseModel):
         if switch.ip_address in [sw.ip_address for sw in self.switches]:
             return True
         return False
+
+    def _connect_switch(self, new_port: Port):
+        for p in self.ports:
+            if p.name == new_port.connection:
+                p.switch.connections.append(new_port.switch)
+                new_port.switch.connections.append(p.switch)
+                return
+
+    def _get_node_from_switch(self, switch: Switch) -> Optional[SwitchNode]:
+        for node in self.switch_nodes:
+            if node.switch.name == switch.name:
+                return node
+        return None
+
+    def _connect_switch_node(self, new_node: SwitchNode):
+        # Pseudo
+        if len(self.switch_nodes) > 0:
+            self.switch_nodes[0].previous = new_node
+
+    def __str__(self):
+        output = "Network map: \n"
+        for switch in self.switches:
+            output += f"{switch.name=} "
+            output += f"{switch.ip_address=}\n"
+
+        for p in self.ports:
+            output += f"{p.name=} connected to {p.connection}\n"
+        return output
+
+    # MODIFY NETWORK
+
+    def add_switch_node(self, new_switch: SwitchNode):
+        if self._switch_exist(new_switch.switch):
+            return
+        self._connect_switch_node(new_switch)
+        self.switch_nodes.append(new_switch)
+        self.map_has_changed = True
 
     def add_switch(self, new_switch: Switch):
         if self._switch_exist(new_switch):
@@ -85,22 +127,6 @@ class NetworkMap(BaseModel):
 
     def finish_processing_map(self):
         self.map_has_changed = False
-
-    def _connect_switch(self, new_port: Port):
-        for p in self.ports:
-            if p.name == new_port.connection:
-                p.switch.connections.append(new_port.switch)
-                new_port.switch.connections.append(p.switch)
-
-    def __str__(self):
-        output = "Network map: \n"
-        for switch in self.switches:
-            output += f"{switch.name=} "
-            output += f"{switch.ip_address=}\n"
-
-        for p in self.ports:
-            output += f"{p.name=} connected to {p.connection}\n"
-        return output
 
 
 _nw_map = None

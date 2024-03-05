@@ -1,11 +1,9 @@
-from ncclient import manager
 import xml.dom.minidom
-from config_params import (
-    BRIDGE_CONFIG,
-    BRIDGE_FILTER,
-    get_interface_filter,
-)
-from tsn_config_xml import get_qbv_config, get_gcl
+
+from ncclient import manager
+
+from config_params import BRIDGE_CONFIG, BRIDGE_FILTER, get_interface_filter
+from tsn_config_xml import get_gcl, get_qbv_config
 
 
 def edit_config_req(manager: manager.Manager, config, filter=None):
@@ -34,8 +32,8 @@ def get_outgress_port_gcl(test_case: int):
         pair1_outport = get_gcl(bm=[255], val=[5000000])
         pair2_outport = get_gcl(bm=[255], val=[10000000])
     elif test_case == 3:
-        pair1_outport = get_gcl(bm=[253, 64], val=[80000000, 20000000])
-        pair2_outport = get_gcl(bm=[253, 64], val=[80000000, 20000000])
+        pair1_outport = get_gcl(bm=[253, 64], val=[2000000, 8000000])
+        pair2_outport = get_gcl(bm=[253, 64], val=[2000000, 8000000])
     else:
         pair1_outport = []
         pair2_outport = []
@@ -49,11 +47,11 @@ if __name__ == "__main__":
         # edit_config_req(m, BRIDGE_CONFIG, BRIDGE_FILTER)
 
         cycle_time = 100
-        control_list = get_outgress_port_gcl(test_case=1)
+        control_list = get_outgress_port_gcl(test_case=3)
         qbv_config = get_qbv_config(cycle_time=cycle_time, control_list=control_list)
         # print(qbv_config)
 
-        interf_filter = get_interface_filter("sw0p4")
+        interf_filter = get_interface_filter("sw0p5")
         edit_config_req(m, qbv_config, interf_filter)
 
         # # ! modification not supported

@@ -1,24 +1,30 @@
-from nc_edit_config import edit_switch_schedule
-from tsn_config_xml import get_qbv_config
-from network_map import get_nw_map, Switch
 import asyncio
 
+from nc_edit_config import edit_switch_schedule
+from network_map import Switch, SwitchNode, get_nw_map
+from tsn_config_xml import get_qbv_config
+
 CYCLE_TIME = 800
-RESIDENCE_TIME = 0
-LINK_DELAY = 0
+LINK_DELAY = 420000  # 0.42ms
 
 
-def calculate_schedule(switch: Switch):
-    # TODO: different NWMap data structure for this calculation
-    print(f"Shaping traffic for {switch.ip_address}\n")
+def calc_egress_offset(node: SwitchNode) -> int:
+    egress_offset = node.latency_to_prev  # link delay + residence time
+    if node.previous:
+        return calc_egress_offset(node.previous) + egress_offset
+    else:
+        return egress_offset
 
-    total_residence_time = RESIDENCE_TIME
-    total_link_delay = LINK_DELAY
 
-    offset = total_residence_time + total_link_delay
+def calculate_schedule_for_node(node: SwitchNode):
+    print(f"Shaping traffic for {node.switch.ip_address}\n")
+
+    offset_egress = calc_egress_offset(node)
+    switch_residence_time = node.switch.residence_time
+    offset_ingress = offset_egress - switch_residence_time
 
     cycle_time = CYCLE_TIME
-    return cycle_time, offset
+    return cycle_time, offset_ingress, offset_egress
 
 
 async def shape_traffic(nw_map):
@@ -32,14 +38,18 @@ async def shape_traffic(nw_map):
     while True:
         # calculate new schedule if nw map changes
         if nw_map.map_has_changed:
-            switches = nw_map.switches
-            for switch in switches:
+            switch_nodes = nw_map.switch_nodes
+            for node in switch_nodes:
                 # 3. compute schedule for this switch
-                cycle_time, offset = calculate_schedule(switch)
-                qbv_config = get_qbv_config(cycle_time=cycle_time, off_set=offset)
+                cycle_time, offset_ingress, offset_egress = calculate_schedule_for_node(node)
+                qbv_config = get_qbv_config(
+                    cycle_time=cycle_time,
+                    offset_ingress=offset_ingress,
+                    offset_egress=offset_egress,
+                )
 
                 # 4. send schedule to switches
-                edit_switch_schedule(switch.ip_address, qbv_config)
+                # edit_switch_schedule(node.switch.ip_address, qbv_config)
 
             nw_map.finish_processing_map()
 

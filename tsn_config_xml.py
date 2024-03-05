@@ -1,8 +1,9 @@
-from pydantic import BaseModel
-from typing import List, Dict
+from typing import Dict, List
 
-HIGH_PRIORITY_INGRESS_PCP = 1
-# HIGH_PRIORITY_INGRESS_PCP = 6
+from pydantic import BaseModel
+
+# HIGH_PRIORITY_INGRESS_PCP = 1
+HIGH_PRIORITY_INGRESS_PCP = 6
 
 PORT_PARAM = """
         <priority-regeneration>
@@ -36,6 +37,41 @@ PORT_PARAM = """
             <priority7>7</priority7>
         </traffic-class>
         <acceptable-frame>admit-all-frames</acceptable-frame>
+"""
+
+MAX_SDU = """
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>0</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>1</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>2</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>3</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>4</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>5</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>6</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
+    <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <traffic-class>7</traffic-class>
+      <queue-max-sdu>1504</queue-max-sdu>
+    </max-sdu-table>
 """
 
 
@@ -95,7 +131,9 @@ def get_gcl(**bm_and_val) -> List[GCLEntry]:
     return control_list
 
 
-def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
+def get_qbv_config(
+    cycle_time: int, offset_ingress: int = 0, offset_egress: int = 0, control_list: Dict = {}
+):
     QBV_CONFIG = f"""
   <config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
     <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
@@ -108,47 +146,17 @@ def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
         {PORT_PARAM}
         </bridge-port>
       </interface>
+
       <interface>
         <name>sw0p2</name>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>0</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>1</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>2</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>3</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>4</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>5</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>6</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>7</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        {create_qbv_gate_params([], cycle_time, off_set)}
+        {MAX_SDU}
         <bridge-port xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <component-name>br0</component-name>
           <pvid>1</pvid>
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
+        {create_qbv_gate_params([], cycle_time, offset_ingress)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
           <auto-negotiation>
             <enable>true</enable>
@@ -158,45 +166,14 @@ def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
 
       <interface>
         <name>sw0p3</name>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>0</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>1</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>2</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>3</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>4</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>5</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>6</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>7</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
+        {MAX_SDU}
         <bridge-port xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <component-name>br0</component-name>
           <pvid>1</pvid>
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_params(control_list.get('pair1_outport', []), cycle_time, off_set)}
+        {create_qbv_gate_params(control_list.get('pair1_outport', []), cycle_time, offset_egress)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
           <auto-negotiation>
             <enable>true</enable>
@@ -206,45 +183,14 @@ def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
 
       <interface>
         <name>sw0p4</name>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>0</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>1</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>2</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>3</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>4</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>5</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>6</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>7</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
+        {MAX_SDU}
         <bridge-port xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <component-name>br0</component-name>
           <pvid>1</pvid>
           <default-priority>{HIGH_PRIORITY_INGRESS_PCP}</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_params([], cycle_time, off_set)}
+        {create_qbv_gate_params([], cycle_time, offset_ingress)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
         <auto-negotiation>
           <enable>true</enable>
@@ -254,45 +200,14 @@ def get_qbv_config(cycle_time: int, off_set: int = 0, control_list: Dict = {}):
 
       <interface>
         <name>sw0p5</name>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>0</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>1</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>2</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>3</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>4</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <traffic-class>5</traffic-class>
-        <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>6</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
-        <max-sdu-table xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-sched" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <traffic-class>7</traffic-class>
-          <queue-max-sdu>1504</queue-max-sdu>
-        </max-sdu-table>
+        {MAX_SDU}
         <bridge-port xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <component-name>br0</component-name>
           <pvid>1</pvid>
           <default-priority>1</default-priority>
           {PORT_PARAM}
         </bridge-port>
-        {create_qbv_gate_params(control_list.get('pair2_outport', []), cycle_time, off_set)}
+        {create_qbv_gate_params(control_list.get('pair2_outport', []), cycle_time, offset_egress)}
         <ethernet xmlns="urn:ieee:std:802.3:yang:ieee802-ethernet-interface" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xc:operation="replace">
         <auto-negotiation>
           <enable>true</enable>
