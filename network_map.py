@@ -139,7 +139,6 @@ def init_nw_map() -> NetworkMap:
     return _nw_map
 
 
-# -- ! deprecated ! --
 def get_nw_map():
     global _nw_map
     return _nw_map

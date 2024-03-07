@@ -1,7 +1,7 @@
 import asyncio
 
 from nc_edit_config import edit_switch_schedule
-from network_map import Switch, SwitchNode, get_nw_map
+from network_map import SwitchNode, get_nw_map
 from tsn_config_xml import get_qbv_config
 
 CYCLE_TIME = 800

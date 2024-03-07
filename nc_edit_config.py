@@ -2,8 +2,8 @@ import xml.dom.minidom
 
 from ncclient import manager
 
-from config_params import BRIDGE_CONFIG, BRIDGE_FILTER, get_interface_filter
-from tsn_config_xml import get_gcl, get_qbv_config
+from config_params import get_interface_filter
+from tsn_config_xml import get_gcl, get_interface_filter, get_qbv_config
 
 
 def edit_config_req(manager: manager.Manager, config, filter=None):
@@ -43,9 +43,6 @@ def get_outgress_port_gcl(test_case: int):
 
 if __name__ == "__main__":
     with manager.connect(host="169.254.9.19", port=830, username="thesis", password="thesis") as m:
-        """edit bridge config, frames with VLANID 1100 are forwarded to all port"""
-        # edit_config_req(m, BRIDGE_CONFIG, BRIDGE_FILTER)
-
         cycle_time = 100
         control_list = get_outgress_port_gcl(test_case=3)
         qbv_config = get_qbv_config(cycle_time=cycle_time, control_list=control_list)
@@ -53,6 +50,3 @@ if __name__ == "__main__":
 
         interf_filter = get_interface_filter("sw0p5")
         edit_config_req(m, qbv_config, interf_filter)
-
-        # # ! modification not supported
-        # edit_config_req(m, LLDP_CONFIG, LLDP_FILTER)

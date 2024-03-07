@@ -1,7 +1,8 @@
-from ncclient import manager
 import xml.dom.minidom
 
-from config_params import BRIDGE_FILTER, LLDP_FILTER, get_interface_filter
+from ncclient import manager
+
+from tsn_config_xml import LLDP_FILTER, get_interface_filter
 
 
 def get_switch_config(ip_address: str, debug: bool = False):
@@ -22,11 +23,6 @@ def get_switch_config(ip_address: str, debug: bool = False):
         # with open("full_config.xml", "w") as f:
         #     f.write(xmlDom.toprettyxml(indent="  "))
 
-        # BRIDGE
-        # bridge_config = m.get_config("running", BRIDGE_FILTER)
-        # xmlDom = xml.dom.minidom.parseString(str(bridge_config))
-        # with open("bridge_info.xml", "w") as f:
-        #     f.write(xmlDom.toprettyxml(indent="  "))
 
         # INTERFACES
         filter = get_interface_filter("sw0p5")

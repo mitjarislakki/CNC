@@ -19,13 +19,13 @@ class FrameHandler:
         new_switch = Switch(name=switch_name, ip_address=ip)
         self.nw_map.add_switch(new_switch)
 
-        ### BETA
         new_switch_node = SwitchNode(switch=new_switch, link_delay_to_prev=LINK_DELAY)
         self.nw_map.add_switch_node(new_switch_node)
-        ###
 
+        # Send NETCONF request to get switch information
         lldp_config = get_switch_config(ip)
 
+        # extract port information from switch config
         found_ports = handle_config(str(lldp_config), "lldp.port")
         for port_name, connection in found_ports.items():
             self.nw_map.add_port(
@@ -44,6 +44,8 @@ class FrameHandler:
             name = frame[LLDPDUSystemDescription].description
             switch_name = bytes(name).decode()
 
-        logger.success(f"{switch_ip=}; {switch_name=}")
+        logger.success(f"Getting LLDP frame of {switch_ip=}, updating network map")
+
         self.update_nw_map(switch_ip, switch_name)
-        print(f"{self.nw_map}")
+
+        logger.info(f"Network map: {self.nw_map}")

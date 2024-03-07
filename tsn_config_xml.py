@@ -234,3 +234,23 @@ def get_qbv_config(
   """
 
     return QBV_CONFIG
+
+
+LLDP_FILTER = """
+<filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <lldp>
+  </lldp>
+</filter>
+"""
+
+
+def get_interface_filter(interface: str):
+    return f"""
+          <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+              <interface>
+                <name>{interface}</name>
+              </interface>
+            </interfaces>
+          </filter>
+          """

@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import Dict, List, Optional, Union
-from collections import OrderedDict
 import json
+from collections import OrderedDict
+from typing import Dict, List, Optional, Union
 
 import xmltodict
+from pydantic import BaseModel, Field
 
 REPLY_TAG = "nc:rpc-reply"
 DATA_TAG = "data"
@@ -75,9 +75,4 @@ def handle_config(data: str, target_element: str):
             port_name, port_connection = extract_ports_from_lldp(found_port)
             ports[port_name] = port_connection
 
-            # print(f"LLDP return port: {port_name} - {port_connection}\n")
-
     return ports
-
-
-# handle_config("", "lldp.port")
