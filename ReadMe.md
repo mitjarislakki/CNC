@@ -1,17 +1,27 @@
 # Centralized Network Configuration for Time Sensitive Network
 
-## Introduction
+The repository contains the basic CNC functionality for TSN network management. This CNC main reponsibilities are:
+- Network monitoring (nodes discovery and connection) for topology determination
+- Calculate time sensitive related configuration parameters and bridges communication
 
-_
+The project is done in Python, utilizing virtual environment management with Poetry.
+## Project structure
 
-## File and directory structure
 
-- `cnc_main.py` --
+```sh
+.
+├── cnc_main.py             # start CNC functions as separate tasks running in parallel
+├── traffic_shaper.py       # switch TSN config calculation
+├── switch_discovery
+│   ├── frame_handler.py         # get switch basic information from LLDP frame
+│   └── process_switch_config.py # YANG LLDP model definition for infomation retrieval
+├── network_map
+│   └── network_map.py           # network map related models and functions
+└── netconf_helper          # NETCONF clients and parameters definition
+    ├── tsn_config.xml.py
+    ├── nc_get_config.py
+    └── nc_edit_config.py
+```
 
-- `frame_handler.py` --
 
-- `traffic_shaper.py` --
-
-- `README.md` -- Essential basic information about the project.
-
-## Installation instructions
+## Installation
