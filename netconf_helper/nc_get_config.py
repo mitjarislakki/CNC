@@ -2,7 +2,7 @@ import xml.dom.minidom
 
 from ncclient import manager
 
-from tsn_config_xml import LLDP_FILTER, get_interface_filter
+from netconf_helper.tsn_config_xml import LLDP_FILTER, get_interface_filter
 
 
 def get_switch_config(ip_address: str, debug: bool = False):
@@ -22,7 +22,6 @@ def get_switch_config(ip_address: str, debug: bool = False):
         # xmlDom = xml.dom.minidom.parseString(str(full_config))
         # with open("full_config.xml", "w") as f:
         #     f.write(xmlDom.toprettyxml(indent="  "))
-
 
         # INTERFACES
         filter = get_interface_filter("sw0p5")

@@ -1,10 +1,11 @@
-from scapy.packet import Packet
-from scapy.sendrecv import sniff
-from scapy.contrib.lldp import LLDPDU
-from scapy.base_classes import SetGen
 import asyncio
 
-from frame_handler import FrameHandler
+from scapy.base_classes import SetGen
+from scapy.contrib.lldp import LLDPDU
+from scapy.packet import Packet
+from scapy.sendrecv import sniff
+
+from bridge_discovery.frame_handler import FrameHandler
 
 INTERF = "enxa0cec8877051"
 
@@ -37,12 +38,12 @@ def get_packet_layers(packet: Packet):
         counter += 1
 
 
-async def sniff_lldp_frame(handler: FrameHandler):
+async def sniff_lldp_frame(handler: FrameHandler, debug: bool = False):
     def _process_lldp(frame: Packet):
         if frame.haslayer(LLDPDU):
             frame_content = frame.show(dump=True)
             if "switch" in frame_content.lower():
-                if __name__ == "__main__":
+                if debug:
                     for layer in get_packet_layers(frame):
                         _get_fields(layer)
                     print(frame_content)

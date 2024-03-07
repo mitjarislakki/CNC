@@ -1,8 +1,8 @@
 import asyncio
 
-from nc_edit_config import edit_switch_schedule
+from netconf_helper.nc_edit_config import edit_switch_schedule
+from netconf_helper.tsn_config_xml import get_gcl, get_qbv_config
 from network_map import SwitchNode, get_nw_map
-from tsn_config_xml import get_gcl, get_qbv_config
 
 CYCLE_TIME = 100
 LINK_DELAY = 420000  # 0.42ms
@@ -48,15 +48,11 @@ async def shape_traffic(nw_map):
             for node in switch_nodes:
                 # 3. compute schedule for this switch
                 cycle_time, offset_ingress, offset_egress = calculate_schedule_for_node(node)
-                print(cycle_time, offset_ingress, offset_egress)
                 qbv_config = get_qbv_config(
                     cycle_time=cycle_time,
                     offset_ingress=offset_ingress,
                     offset_egress=offset_egress,
                 )
-
-                print(qbv_config)
-
                 # 4. send schedule to switches
                 # edit_switch_schedule(node.switch.ip_address, qbv_config)
 

@@ -2,8 +2,7 @@ import xml.dom.minidom
 
 from ncclient import manager
 
-from config_params import get_interface_filter
-from tsn_config_xml import get_gcl, get_interface_filter, get_qbv_config
+from netconf_helper.tsn_config_xml import get_gcl, get_interface_filter, get_qbv_config
 
 
 def edit_config_req(manager: manager.Manager, config, filter=None):

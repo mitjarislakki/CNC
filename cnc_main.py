@@ -2,9 +2,9 @@ import asyncio
 
 from loguru import logger
 
-from frame_handler import FrameHandler
+from bridge_discovery.frame_handler import FrameHandler
+from bridge_discovery.sniff_lldp import sniff_lldp_frame
 from network_map import init_nw_map
-from sniff_lldp import sniff_lldp_frame
 from traffic_shaper import shape_traffic
 
 
@@ -19,7 +19,6 @@ async def main():
     traffic_shaping_task = asyncio.create_task(shape_traffic(nw_map))
 
     await asyncio.gather(*[sniffing_task, traffic_shaping_task])
-
 
 
 asyncio.run(main())
