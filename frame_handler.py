@@ -17,10 +17,11 @@ class FrameHandler:
 
     def update_nw_map(self, ip: str, switch_name: str):
         new_switch = Switch(name=switch_name, ip_address=ip)
-        self.nw_map.add_switch(new_switch)
+        # self.nw_map.add_switch(new_switch)
 
         new_switch_node = SwitchNode(switch=new_switch, link_delay_to_prev=LINK_DELAY)
-        self.nw_map.add_switch_node(new_switch_node)
+        self.nw_map.add_switch_and_node(new_switch, new_switch_node)
+        ###
 
         # Send NETCONF request to get switch information
         lldp_config = get_switch_config(ip)

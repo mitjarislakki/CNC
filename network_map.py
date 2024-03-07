@@ -81,6 +81,7 @@ class NetworkMap(BaseModel):
         # Pseudo
         if len(self.switch_nodes) > 0:
             self.switch_nodes[0].previous = new_node
+            return
 
     def __str__(self):
         output = "Network map: \n"
@@ -89,22 +90,28 @@ class NetworkMap(BaseModel):
             output += f"{switch.ip_address=}\n"
 
         for p in self.ports:
-            output += f"{p.name=} connected to {p.connection}\n"
+            if p.connection:
+                output += f"{p.name=} connected to {p.connection}\n"
+            else:
+                output += f"{p.name}; "
         return output
 
     # MODIFY NETWORK
 
     def add_switch_node(self, new_switch: SwitchNode):
-        if self._switch_exist(new_switch.switch):
-            return
         self._connect_switch_node(new_switch)
         self.switch_nodes.append(new_switch)
-        self.map_has_changed = True
 
     def add_switch(self, new_switch: Switch):
+
+        self.switches.append(new_switch)
+        # print(f"Switch {self.map_has_changed}")
+
+    def add_switch_and_node(self, new_switch: Switch, new_node: SwitchNode):
         if self._switch_exist(new_switch):
             return
-        self.switches.append(new_switch)
+        self.add_switch(new_switch)
+        self.add_switch_node(new_node)
         self.map_has_changed = True
 
     def add_port(self, port_name: str, switch: Switch, connection_port: Optional[str]):
