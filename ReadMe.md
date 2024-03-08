@@ -4,6 +4,7 @@ The repository contains the basic CNC implementation for TSN network management.
 - Ethernet network monitoring (switch discovery and connection) for topology drawing
 - Calculate TSN-related configuration parameters and bridges communication
 
+Note that that the original architecture involves the use of bothe CNC and CUC for network management.
 ## Project structure
 The project is structured as followed:
 
@@ -17,12 +18,12 @@ The project is structured as followed:
 │   └── process_switch_config.py # YANG LLDP model definition for infomation retrieval
 ├── network_map
 │   └── network_map.py           # network map related models and functions
-└── netconf_helper          # NETCONF clients and parameters definition
-    ├── tsn_config.xml.py
-    ├── nc_get_config.py
-    └── nc_edit_config.py
+└── netconf_helper
+    ├── tsn_config.xml.py        # related XML payload and helper function
+    ├── nc_get_config.py         # NETCONF <get-config>
+    └── nc_edit_config.py        # NETCONF <edit-config>
 ```
-The application starts from `cnc_main.py`, which spins up 2 tasks running asynchronously for Ethernet network map discovery and switch configuration calculation.
+The application starts from `cnc_main.py`, which spins up 2 tasks running asynchronously for Ethernet network map discovery and switch configuration calculation. Also note that the `deprecated/` and `tests` are neither actively maintained nor used in the program.
 
 #### Network topology
 ```sh
@@ -53,7 +54,7 @@ To install the project dependencies:
 ```sh
 poetry install
 ```
-CNC works with an Ethernet network, but it can be connected to a TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to connected interface.
+CNC works with an Ethernet network, but it can also be connected to a single TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to your connected interface.
 
 The application main entry point is `cnc_main.py`. After connecting to the network switch, running the application can be done by getting inside the Poetry virtual environment:
 ```sh

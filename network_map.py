@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-from loguru import logger
 from pydantic import BaseModel, model_validator
 
 RESIDENCE_TIME = 800  # in nanosec
@@ -26,6 +25,7 @@ class SwitchNode(BaseModel):
 
     @property
     def latency_to_prev(self):
+        # link delay + residence time
         return self.link_delay_to_prev + self.switch.residence_time
 
 

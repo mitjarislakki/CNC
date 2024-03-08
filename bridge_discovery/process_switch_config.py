@@ -57,8 +57,6 @@ def extract_ports_from_lldp(port: OrderedDict):
     if connections:
         conn: RemoteConnection = connections[0] if (type(connections) is list) else connections  # type: ignore[union-attr, assignment]
         connected_port = conn.port_desc or conn.port_id
-        connected_address = conn.management_address
-        # print(connected_address)
 
     return name, connected_port
 
@@ -68,7 +66,6 @@ def handle_config(data: str, target_element: str):
 
     attr_list = target_element.split(".")
     config_data = xmltodict.parse(data)
-    # print(json.dumps(config_data))
     found = _get_element(config_data[REPLY_TAG][DATA_TAG], attr_list.copy())
     if "port" in attr_list:
         for found_port in found:

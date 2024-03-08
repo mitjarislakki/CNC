@@ -9,7 +9,7 @@ LINK_DELAY = 420000  # 0.42ms
 
 
 def calc_egress_offset(node: SwitchNode) -> int:
-    egress_offset = node.latency_to_prev  # link delay + residence time
+    egress_offset = node.latency_to_prev
     if node.previous:
         return calc_egress_offset(node.previous) + egress_offset
     else:
@@ -53,8 +53,8 @@ async def shape_traffic(nw_map):
                     offset_ingress=offset_ingress,
                     offset_egress=offset_egress,
                 )
-                # 4. send schedule to switches
-                # edit_switch_schedule(node.switch.ip_address, qbv_config)
+                # send schedule to switches
+                edit_switch_schedule(node.switch.ip_address, qbv_config)
 
             nw_map.finish_processing_map()
 
