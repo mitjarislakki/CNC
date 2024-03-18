@@ -1,10 +1,11 @@
 # Centralized Network Configuration for Time Sensitive Network
 
-The repository contains the basic CNC implementation for TSN network management. This CNC main reponsibilities are:
+The repository contains the basic Centralized Network Configuration (CNC) implementation for Time Sensitive Network (TSN) network management. This CNC main reponsibilities are:
 - Ethernet network monitoring (switch discovery and connection) for topology drawing
 - Calculate TSN-related configuration parameters and bridges communication
 
-Note that that the original architecture involves the use of bothe CNC and CUC for network management.
+Note that that the original architecture involves the use of both CNC and CUC for network management. The complete architecture should be as follow:
+
 ## Project structure
 The project is structured as followed:
 
@@ -12,6 +13,8 @@ The project is structured as followed:
 .
 ├── cnc_main.py             # start CNC functions as separate tasks running in parallel
 ├── traffic_shaper.py       # switch TSN config calculation
+├── gui                     # GUI for displaying network topology
+│   └── gui.py
 ├── bridge_discovery
 │   ├── sniff_lldp.py            # scapy sniffer that listens to switch LLDP broadcase
 │   ├── frame_handler.py         # get switch basic information from LLDP frame
@@ -23,7 +26,7 @@ The project is structured as followed:
     ├── nc_get_config.py         # NETCONF <get-config>
     └── nc_edit_config.py        # NETCONF <edit-config>
 ```
-The application starts from `cnc_main.py`, which spins up 2 tasks running asynchronously for Ethernet network map discovery and switch configuration calculation. Also note that the `deprecated/` and `tests` are neither actively maintained nor used in the program.
+The application starts from `cnc_main.py`, which spins up 2 tasks running asynchronously for Ethernet network map discovery and switch configuration calculation. Also note that everything under `deprecated/` and `tests/` are neither actively maintained nor used in the program.
 
 #### Network topology
 ```sh
@@ -45,7 +48,7 @@ The standard IEEE terms for this functionality is traffic shaping. When there ar
 - Gate control list entry
 - Offset of ingress and egress port for each traffic node
 
-## Installation and developement
+## Installation and development
 
 The project is done in Python, utilizing virtual environment management with Poetry.
 Make sure that you have at least Python3.8 and [Poetry](https://python-poetry.org/docs/#installation) install on your system.
@@ -64,4 +67,13 @@ python3.8 cnc_main.py
 OR
 ```sh
 poetry run python3.8 cnc_main.py
+```
+The Python program then runs continously until force stop. If the program throws an error it supposes to recover and keep running without exiting.
+
+## GUI
+The GUI uses Tkinter, which is built into python, but if missing can be installed eg. with `sudo apt-get install python3.10-tk` for python3.10.
+
+It can be ran separately from the main CNC functions from the `gui/gui.py` file.
+```sh
+python3 -m gui.gui gui/gui.py
 ```

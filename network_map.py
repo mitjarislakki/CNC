@@ -10,6 +10,7 @@ class Switch(BaseModel):
     ip_address: str
     residence_time: int = RESIDENCE_TIME
     connections: List["Switch"] = []
+    ports: List["Port"] = []
 
 
 class Port(BaseModel):
@@ -27,14 +28,6 @@ class SwitchNode(BaseModel):
     def latency_to_prev(self):
         # link delay + residence time
         return self.link_delay_to_prev + self.switch.residence_time
-
-
-def calculate_offset(node: SwitchNode):
-    ingress_offset = node.latency_to_prev
-    if node.previous:
-        return calculate_offset(node.previous)
-    else:
-        return ingress_offset
 
 
 class NetworkMap(BaseModel):
@@ -86,18 +79,17 @@ class NetworkMap(BaseModel):
     def __str__(self):
         output = "Network map: \n"
         for switch in self.switches:
-            output += f"{switch.name=} "
-            output += f"{switch.ip_address=}\n"
-
+            output += f"{switch.name=} {switch.ip_address=} "
+            output += f"connected to {switch.connections[0].name}\n"
+        output += "\n"
         for p in self.ports:
             if p.connection:
-                output += f"{p.name=} connected to {p.connection}\n"
+                output += f"{p.name=} connected to {p.connection}; "
             else:
                 output += f"{p.name}; "
         return output
 
     # MODIFY NETWORK
-
     def add_switch_node(self, new_switch: SwitchNode):
         self._connect_switch_node(new_switch)
         self.switch_nodes.append(new_switch)
@@ -130,6 +122,7 @@ class NetworkMap(BaseModel):
             self._connect_switch(new_port)
 
         self.ports.append(new_port)
+        switch.ports.append(new_port)
         self.map_has_changed = True
 
     def finish_processing_map(self):
