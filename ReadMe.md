@@ -5,7 +5,7 @@ The repository contains the basic Centralized Network Configuration (CNC) implem
 - Calculate TSN-related configuration parameters and bridges communication
 
 Note that that the original architecture involves the use of both CNC and CUC for network management. The complete architecture should be as follow:
-
+![CNC and CUC](./cnc.png)
 ## Project structure
 The project is structured as followed:
 
@@ -53,7 +53,7 @@ The standard IEEE terms for this functionality is traffic shaping. When there ar
 The project is done in Python, utilizing virtual environment management with Poetry.
 Make sure that you have at least Python3.8 and [Poetry](https://python-poetry.org/docs/#installation) install on your system.
 
-To install the project dependencies:
+Project dependencies can be installed manually or by running
 ```sh
 poetry install
 ```
