@@ -1,6 +1,6 @@
 import json
 from collections import OrderedDict
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 
 import xmltodict
 from pydantic import BaseModel, Field
@@ -21,7 +21,8 @@ class RemoteConnection(BaseModel):
     system_description: Optional[str] = Field(alias="system-description", default=None)
     system_capabilities_supported: str = Field(alias="system-capabilities-supported")
     system_capabilities_enabled: str = Field(alias="system-capabilities-enabled")
-    management_address: Optional[List] = Field(alias="management-address", default=None)
+    # TODO: Fix type
+    management_address: Optional[Union[List, Any]] = Field(alias="management-address", default=None)
 
 
 class CNCPort(BaseModel):
