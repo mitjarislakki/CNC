@@ -7,7 +7,8 @@ from scapy.sendrecv import sniff
 
 from bridge_discovery.frame_handler import FrameHandler
 
-INTERF = "enxa0cec8877051"
+# Interface connected to switch
+from config import INTERF
 
 
 def _get_fields(frame: Packet):
