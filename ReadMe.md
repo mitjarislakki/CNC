@@ -1,4 +1,5 @@
 # Centralized Network Configuration for Time Sensitive Network
+Fork of https://github.com/TheLondonEye700/CNC meant for development of TSN-AF.
 
 The repository contains the basic Centralized Network Configuration (CNC) implementation for Time Sensitive Network (TSN) network management. This CNC main reponsibilities are:
 - Ethernet network monitoring (switch discovery and connection) for topology drawing
@@ -6,6 +7,35 @@ The repository contains the basic Centralized Network Configuration (CNC) implem
 
 Note that that the original architecture involves the use of both CNC and CUC for network management. The complete architecture should be as follow:
 ![CNC and CUC](./cnc.png)
+
+## Installation & configuration
+Base requirements:
+- Python >= 3.8
+- pip
+
+Create a new virtual environment and activate it
+
+`python3 -m venv .venv`
+
+`source .venv/bin/activate`
+
+Install the dependencies
+
+`pip3 install -r requirements.txt`
+
+
+**Behavior with package versions higher than those in requirements.txt is untested.**
+
+CNC works with an Ethernet network, but it can also be connected to a single TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to your connected interface.
+
+The application main entry point is `cnc_main.py`. After connecting to the network switch, running the application can be done with the virtual environment:
+- Windows: `.\.venv\Scripts\activate`
+- Linux: `source .venv/bin/activate`
+
+Followed by `python3 cnc_main.py`
+
+The Python program then runs continously until force stop (Ctrl+C). If the program throws an error it is supposed to recover and keep running without exiting.
+
 ## Project structure
 The project is structured as followed:
 
@@ -47,28 +77,6 @@ The standard IEEE terms for this functionality is traffic shaping. When there ar
 - Port gate cycle time
 - Gate control list entry
 - Offset of ingress and egress port for each traffic node
-
-## Installation and development
-
-The project is done in Python, utilizing virtual environment management with Poetry.
-Make sure that you have at least Python3.8 and [Poetry](https://python-poetry.org/docs/#installation) install on your system.
-
-Project dependencies can be installed manually or by running
-```sh
-poetry install
-```
-CNC works with an Ethernet network, but it can also be connected to a single TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to your connected interface.
-
-The application main entry point is `cnc_main.py`. After connecting to the network switch, running the application can be done by getting inside the Poetry virtual environment:
-```sh
-poetry shell
-python3.8 cnc_main.py
-```
-OR
-```sh
-poetry run python3.8 cnc_main.py
-```
-The Python program then runs continously until force stop. If the program throws an error it supposes to recover and keep running without exiting.
 
 ## GUI
 The GUI uses Tkinter, which is built into python, but if missing can be installed eg. with `sudo apt-get install python3.10-tk` for python3.10.

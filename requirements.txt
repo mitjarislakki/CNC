@@ -1,0 +1,5 @@
+loguru==0.7.2
+scapy==2.5.0
+xmltodict==0.13.0
+pydantic==2.6.3
+ncclient==0.6.15
