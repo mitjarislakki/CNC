@@ -6,7 +6,13 @@ from netconf_helper.tsn_config_xml import get_gcl, get_interface_filter, get_qbv
 
 
 def edit_config_req(manager: manager.Manager, config, filter=None):
-    manager.edit_config(target="running", config=config, test_option="test-then-set")
+    response = manager.edit_config(target="running", config=config, test_option="test-then-set")
+    # m.commit() # only needed if target is candidate
+    # if response.ok:
+    #     print("Config edit successful")
+    # else:
+    #     print("Config edit failed with:\n {response.xml}")
+    
     # m.commit() # only needed if target is candidate
 
     if filter:
@@ -16,11 +22,15 @@ def edit_config_req(manager: manager.Manager, config, filter=None):
 
 
 def edit_switch_schedule(ip_address: str, config_param):
-    m = manager.connect(
-        host=ip_address, port=830, username="thesis", password="thesis", hostkey_verify=False
-    )
-
-    edit_config_req(m, config_param)
+    try:
+        print("Editing switch schedule")
+        with manager.connect(
+            host=ip_address, port=830, username="thesis", password="thesis", hostkey_verify=False
+        ) as m:
+            edit_config_req(m, config_param)
+    except Exception as e:
+        print(f"Editing switch schdule failed with {e}")
+    # print("Edited switch schedule")
 
 
 def get_outgress_port_gcl(test_case: int):
