@@ -47,7 +47,8 @@ class NetworkMap(BaseModel):
 
     def _port_exists(self, port: Port) -> Optional[Port]:
         for p in self.ports:
-            if p.name == port.name and p.switch == port.switch:
+            # print(f"Name match: {p.name == port.name}, switch match: {p.switch.ip_address == port.switch.ip_address}")
+            if p.name == port.name and p.switch.ip_address == port.switch.ip_address:
                 return p
 
         return None
@@ -82,6 +83,7 @@ class NetworkMap(BaseModel):
             output += f"{switch.name=} {switch.ip_address=} "
             output += f"connected to {switch.connections[0].name if (len(switch.connections) > 0) else 'nothing'}\n"
         output += "\n"
+        # print(f"Ports: ${len(self.ports)} | Switches: ${len(self.switches)} | Switch nodes: ${len(self.switch_nodes)}")
         for p in self.ports:
             if p.connection:
                 output += f"{p.name=} connected to {p.connection}; "
@@ -108,6 +110,8 @@ class NetworkMap(BaseModel):
 
     def add_port(self, port_name: str, switch: Switch, connection_port: Optional[str]):
         new_port = Port(name=port_name, switch=switch)
+
+        # print(f"Port named {new_port.name} connected to {new_port.switch.name}")
 
         if existing_port := self._port_exists(new_port):
             if existing_port.connection == connection_port:
