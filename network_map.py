@@ -80,7 +80,7 @@ class NetworkMap(BaseModel):
         output = "Network map: \n"
         for switch in self.switches:
             output += f"{switch.name=} {switch.ip_address=} "
-            output += f"connected to {switch.connections[0].name}\n"
+            output += f"connected to {switch.connections[0].name if (len(switch.connections) > 0) else 'nothing'}\n"
         output += "\n"
         for p in self.ports:
             if p.connection:
