@@ -17,22 +17,22 @@ Create a new virtual environment and activate it
 
 `python3 -m venv .venv`
 
-`source .venv/bin/activate`
+- Windows: `.\.venv\Scripts\activate`
+- Linux: `source .venv/bin/activate`
 
 Install the dependencies
 
 `pip3 install -r requirements.txt`
 
-
 **Behavior with package versions higher than those in requirements.txt is untested.**
 
-CNC works with an Ethernet network, but it can also be connected to a single TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to your connected interface.
+The CNC works with an Ethernet network, but it can also be connected to a single TSN switch. Modify the `INTERF` variable under `bridge_discovery/sniff_lldp.py` to your connected interface. 
 
-The application main entry point is `cnc_main.py`. After connecting to the network switch, running the application can be done with the virtual environment:
-- Windows: `.\.venv\Scripts\activate`
-- Linux: `source .venv/bin/activate`
+The CNC is configured for B&R 0ACST052.1 by default.
 
-Followed by `python3 cnc_main.py`
+The application main entry point is `cnc_main.py`. After connecting a NETCONF-enabled switch to the interface specified in `INTERF` (and adjusting relevant switch-specific variables), run the program as sudo:
+`sudo .venv/bin/python3 cnc_main.py`
+To use virtual environment variables in sudo you need to specify the path to the environments Python executable. Sudo is needed to access port privileged port 830 (default for NETCONF via SSH). Running without sudo will terminate with OSError.
 
 The Python program then runs continously until force stop (Ctrl+C). If the program throws an error it is supposed to recover and keep running without exiting.
 
@@ -41,20 +41,21 @@ The project is structured as followed:
 
 ```sh
 .
-├── cnc_main.py             # start CNC functions as separate tasks running in parallel
-├── traffic_shaper.py       # switch TSN config calculation
-├── gui                     # GUI for displaying network topology
-│   └── gui.py
+├── cnc_main.py                  # start CNC functions as separate tasks running in parallel
+├── traffic_shaper.py            # switch TSN config calculation
+├── network_map.py               # network map related models and functions
+├── gui                          
+│   └── gui.py                   # GUI for displaying network topology
 ├── bridge_discovery
 │   ├── sniff_lldp.py            # scapy sniffer that listens to switch LLDP broadcase
 │   ├── frame_handler.py         # get switch basic information from LLDP frame
 │   └── process_switch_config.py # YANG LLDP model definition for infomation retrieval
-├── network_map
-│   └── network_map.py           # network map related models and functions
-└── netconf_helper
-    ├── tsn_config.xml.py        # related XML payload and helper function
-    ├── nc_get_config.py         # NETCONF <get-config>
-    └── nc_edit_config.py        # NETCONF <edit-config>
+├── netconf_helper
+│   ├── tsn_config.xml.py        # related XML payload and helper function
+│   ├── nc_get_config.py         # NETCONF <get-config>
+│   └── nc_edit_config.py        # NETCONF <edit-config>
+└── setup
+    └── conf.py                  # iperf3 client server pair script
 ```
 The application starts from `cnc_main.py`, which spins up 2 tasks running asynchronously for Ethernet network map discovery and switch configuration calculation. Also note that everything under `deprecated/` and `tests/` are neither actively maintained nor used in the program.
 
@@ -85,3 +86,10 @@ It can be ran separately from the main CNC functions from the `gui/gui.py` file.
 ```sh
 python3 -m gui.gui gui/gui.py
 ```
+
+## TODO
+- [ ] Verify GUI working
+- [ ] Set up config.py to centralize user environment variables
+- [ ] Add time synchronization feedback
+- [ ] Add easy multi-switch control
+- [ ] Add unit testing
